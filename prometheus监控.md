@@ -183,7 +183,8 @@ ntpdate cn.ntp.org.cn
 改完配置文件后,重启服务 
 [root@server ~]# pkill prometheus 
 [root@server ~]# lsof -i:9090           # 确认端口没有进程占 用 
-[root@server ~]# /usr/local/prometheus/prometheus -config.file="/usr/local/prometheus/prometheus.yml" & [root@server ~]# lsof -i:9090           # 确认端口被占用，说 明重启成功
+[root@server ~]# /usr/local/prometheus/prometheus --config.file="/usr/local/prometheus/prometheus.yml" & 
+[root@server ~]# lsof -i:9090           # 确认端口被占用，说 明重启成功
 ```
 
 
@@ -272,7 +273,9 @@ password=123
 参考网址: https://github.com/percona/grafana-dashboards
 
 ```shell
-在grafana配置文件里最后加上以下三行 [root@grafana ~]# vim /etc/grafana/grafana.ini [dashboards.json] enabled = true path = /var/lib/grafana/dashboards
+在grafana配置文件里最后加上以下三行 [root@grafana ~]# vim /etc/grafana/grafana.ini [dashboards.json] 
+enabled = true 
+path = /var/lib/grafana/dashboards
 [root@grafana ~]# cd /var/lib/grafana/ 
 [root@grafana grafana]# git clone https://github.com/percona/grafana-dashboards.git 
 [root@grafana grafana]# cp -r grafanadashboards/dashboards/ /var/lib/grafana/ 重启grafana服务 
@@ -288,3 +291,113 @@ password=123
 然后再回去刷新,就有数据了(如下图所示)  
 
 ![image-20201027223915006](D:\project\installation_doc\prometheus监控\image-20201027223915006.png)
+
+
+
+![img](D:\project\installation_doc\prometheus监控\2020011315383743.png)
+
+## Grafana+onealert报警
+
+### 1、先在onealert里添加grafana应用(申请onealert账号)
+
+
+
+[https://caweb.aiops.com/](https://caweb.aiops.com/#/)
+
+![img](D:\project\installation_doc\prometheus监控\1.png)
+
+
+![img](D:\project\installation_doc\prometheus监控\2.png)
+
+![img](D:\project\installation_doc\prometheus监控\3.png)
+
+### 2、在Grafana中配置Webhook URL
+
+1、在Grafana中创建Notification channel，选择类型为Webhook；
+
+![img](D:\project\installation_doc\prometheus监控\4.png)
+
+2、推荐选中Send on all alerts和Include image，Cloud Alert体验更佳；
+
+3、将第一步中生成的Webhook URL填入Webhook settings Url；
+
+4、Http Method选择POST；
+
+5、Send Test&Save；
+
+![img](D:\project\installation_doc\prometheus监控\5.png)
+
+![img](D:\project\installation_doc\prometheus监控\20200113162840747.png)
+
+### 现在可以去设置一个报警来测试了(这里以我们前面加的cpu负载监控来 做测试)
+
+![img](D:\project\installation_doc\prometheus监控\6.png)
+
+配置
+
+![img](D:\project\installation_doc\prometheus监控\7.png)
+
+![img](D:\project\installation_doc\prometheus监控\8.png)
+
+保存后就可以测试了
+
+![img](D:\project\installation_doc\prometheus监控\9.png)
+
+如果node1上的cpu负载还没有到0.5，你可以试试0.1,或者运行一些程序 把node1负载调大。最终能测试报警成功
+
+![img](D:\project\installation_doc\prometheus监控\10.png)
+
+模拟cpu负载
+
+agent机器上执行以下命令，使cpu load 升高
+
+```
+cat /dev/urandom | md5sum
+```
+
+ 
+
+## 测试mysql链接数报警
+
+![img](D:\project\installation_doc\prometheus监控\20200113164810425.png)
+
+![img](D:\project\installation_doc\prometheus监控\20200113164821235.png)
+
+![img](D:\project\installation_doc\prometheus监控\20200113164837652.png)
+
+
+
+
+
+![img](D:\project\installation_doc\prometheus监控\20200113164839384.png)
+
+
+
+
+
+![img](D:\project\installation_doc\prometheus监控\20200113164902506.png)
+
+
+
+
+
+## 总结报警不成功的可能原因
+
+- 各服务器之间时间不同步，这样时序数据会出问题，也会造成报警出问 题
+- 必须写通知内容，留空内容是不会发报警的
+- 修改完报警配置后，记得要点右上角的保存
+- 保存配置后，需要由OK状态变为alerting状态才会报警(也就是说，你 配置保存后，就已经是alerting状态是不会报警的)
+- grafana与onealert通信有问题
+
+
+
+## 扩展
+
+prometheus目前还在发展中，很多相应的监控都需要开发。但在官网的 dashboard库中,也有一些官方和社区开发人员开发的dashboard可以直接 拿来用。
+
+![img](D:\project\installation_doc\prometheus监控\20200113165033603.png)
+
+![img](D:\project\installation_doc\prometheus监控\20200113165056782.png)
+
+![img](D:\project\installation_doc\prometheus监控\20200113165113140.png)
+
