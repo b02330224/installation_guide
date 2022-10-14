@@ -135,3 +135,58 @@ firewall-cmd --reload
 grant all privileges on *.* to 'root'@'%' identified by '123456' with grant option;
 
 by后面的就是远程登录密码，远程登录密码可以和用户密码不一样
+
+
+
+三 使用docker安装mysql
+step1：使用docker pull 拉取docker hub仓库中mysql镜像 （注意备注）
+
+mysql镜像版本如下：
+
+
+
+docker pull mysql:8.0
+备注：docker pull 默认到官方参考拉取  mysql：8.0   镜像名：镜像tag     
+
+         官方地址为国外地址安装缓慢可进行配置
+
+step2：修改镜像文件拉取地址为ustc 
+
+vi /etc/docker/daemon.json
+备注：insert 编辑内容如下      并esc  输入:wq 保存退出  
+
+{
+"registry-mirrors":["https://docker.mirrors.ustc.edu.cn"]
+}
+step3：重启docker   重新进行step1 安装速度变快
+
+systemctl restart docker
+step4：查看镜像安装情况
+
+docker images
+
+
+step5：启动docker中镜像
+
+docker run --name mysql8.0 -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:8.0
+备注 ：--name 服务启动别名设置  -p端口映射 宿主机端口：镜像运行端口  -d 镜像名：tag 使用守护进程模式启动 -e：设置root帐号密码
+
+step6：查看运行的镜像
+
+docker ps -a
+
+
+step7：进入镜像 运行mysql
+
+docker exec -it mysql8.0 /bin/bash
+备注：exec docker进入容器命令   -it 容器中服务别名 /bin/bash   表示命令行模式  与 -d 后台守护进行模式启动 形成两种运行方式   
+进入容器中如图所示变化如下
+
+
+
+cd /usr/bin
+mysql -u root -p
+备注： 在容器中进入用户目录启动mysql 输入密码连接成功
+
+
+
