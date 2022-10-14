@@ -35,6 +35,10 @@ rpm -ivh mysql-community-client-5.7.29-1.el7.x86_64.rpm
 
 rpm -ivh mysql-community-server-5.7.29-1.el7.x86_64.rpm
 
+rpm -ivh mysql-community-libs-compat-5.7.29-1.el7.x86_64.rpm
+
+rpm -ivh mysql-community-devel-5.7.29-1.el7.x86_64.rpm
+
 如果安装过程中出现这个错误就在后面添加 --force --nodeps，这可能是由于yum安装了旧版本的GPG keys造成的
 
 
@@ -128,6 +132,6 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 firewall-cmd --reload
 
 5.4开启远程登录
-grant all privileges on *.* to 'root'@'%' identified by '123123' with grant option;
+grant all privileges on *.* to 'root'@'%' identified by '123456' with grant option;
 
 by后面的就是远程登录密码，远程登录密码可以和用户密码不一样
